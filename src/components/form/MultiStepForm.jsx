@@ -1,22 +1,51 @@
 "use client";
 
-import React, { useState } from "react";
-import StepIndicator from "../ui/StepIndicator";
-import PersonalInfo from "../steps/PersonalInfo";
-import AddressDetails from "../steps/AddressDetails";
-import AccountSetup from "../steps/AccountSetup";
-import { z } from "zod";
-import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FormProvider, useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { z } from "zod";
+import AccountSetup from "../steps/AccountSetup";
+import AddressDetails from "../steps/AddressDetails";
+import PersonalInfo from "../steps/PersonalInfo";
+import StepIndicator from "../ui/StepIndicator";
+import {
+  nextStep,
+  prevStep,
+  resetForm,
+  setFormData,
+} from "@/redux/features/formSlice";
+import { useEffect } from "react";
 
-const formSchema = z.object({
-  fullName: z.string().min(1, "Full name is required"),
-  email: z.string().min(1, "Email is required").email("Invalid email address"),
-  phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
-});
+const formSchema = z
+  .object({
+    fullName: z.string().min(1, "Full name is required"),
+    email: z
+      .string()
+      .min(1, "Email is required")
+      .email("Invalid email address"),
+    phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
+
+    street: z.string().min(1, "Street address is required"),
+    city: z.string().min(1, "City is required"),
+    zipCode: z
+      .string()
+      .min(5, "Zip code must be at least 5 digits")
+      .regex(/^\d+$/, "Zip code must be numbers only"),
+
+    username: z.string().min(4, "Username must be at least 4 characters"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 const MultiStepForm = () => {
-  const [currentStep, setCurrentStep] = useState(0);
+  const dispatch = useDispatch();
+  const { currentStep, formData, isSubmitted } = useSelector(
+    (state) => state.form
+  );
 
   const steps = [
     {
@@ -33,28 +62,62 @@ const MultiStepForm = () => {
     },
   ];
 
-  const nextStep = () => {
-    if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-  const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
-    }
-  };
-
   const method = useForm({
     resolver: zodResolver(formSchema),
     mode: "onChange",
-    defaultValues: {
-      fullName: "",
-      email: "",
-      phoneNumber: "",
-    },
+    defaultValues: formData,
   });
 
+  console.log(formData);
+
   const { handleSubmit, trigger, getValues, reset, watch } = method;
+
+  useEffect(() => {
+    const savedFormData = localStorage.getItem("formData");
+    if (savedFormData) {
+      const parsedFormData = JSON.parse(savedFormData);
+      reset(parsedFormData);
+      dispatch(setFormData(parsedFormData));
+    }
+  }, [dispatch, reset]);
+
+  useEffect(() => {
+    const sub = watch((value) => {
+      localStorage.setItem("formData", JSON.stringify(value));
+      dispatch(setFormData(value));
+    });
+
+    return () => {
+      sub.unsubscribe();
+    };
+  }, [watch, dispatch]);
+
+  const goToNextStep = async () => {
+    const fieldsToValidate =
+      currentStep === 0
+        ? ["fullName", "email", "phoneNumber"]
+        : currentStep === 1
+        ? ["streetAddress", "city", "zipCode"]
+        : ["username", "password", "confirmPassword"];
+
+    const isStepValid = await trigger(fieldsToValidate);
+
+    if (isStepValid) {
+      dispatch(nextStep());
+    }
+  };
+
+  const goToPrevStep = () => {
+    dispatch(prevStep());
+  };
+
+  const onSubmit = (data) => {
+    console.log("Form submitted successfully", data);
+    localStorage.setItem("formData", JSON.stringify(data));
+    dispatch(setFormData(data));
+    dispatch(resetForm());
+    reset();
+  };
 
   return (
     <div>
@@ -70,7 +133,7 @@ const MultiStepForm = () => {
       <StepIndicator currentStep={currentStep} steps={steps} />
 
       <FormProvider {...method}>
-        <form onSubmit={handleSubmit((data) => console.log(data))}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="bg-white rounded-sm shadow-[0px_0px_32px_-13px_rgba(59,_130,_246,_0.5)] border border-gray-200  mt-10">
             <div className="p-6">
               {steps[currentStep].component}
@@ -79,7 +142,7 @@ const MultiStepForm = () => {
                 {currentStep > 0 && (
                   <button
                     type="button"
-                    onClick={prevStep}
+                    onClick={goToPrevStep}
                     className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     Previous
@@ -90,7 +153,7 @@ const MultiStepForm = () => {
                   <button
                     type="button"
                     className="ml-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    onClick={nextStep}
+                    onClick={goToNextStep}
                   >
                     Next
                   </button>

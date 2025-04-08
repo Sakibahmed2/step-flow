@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/utils/cn";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import React, { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
