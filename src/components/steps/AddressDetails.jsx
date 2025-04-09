@@ -14,6 +14,7 @@ const AddressDetails = () => {
           name={"street"}
           placeholder={"Enter your street address"}
           label={"Street address"}
+          type="text"
         />
         <Input name={"city"} placeholder={"Enter your city"} label={"City"} />
         <Input

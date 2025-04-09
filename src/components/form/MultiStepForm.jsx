@@ -1,20 +1,16 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { FormProvider, set, useForm } from "react-hook-form";
 import { z } from "zod";
 import AccountSetup from "../steps/AccountSetup";
 import AddressDetails from "../steps/AddressDetails";
+import FormSummary from "../steps/FormSummary";
 import PersonalInfo from "../steps/PersonalInfo";
 import StepIndicator from "../ui/StepIndicator";
-import {
-  nextStep,
-  prevStep,
-  resetForm,
-  setFormData,
-} from "@/redux/features/formSlice";
-import { useEffect } from "react";
+import { setFormData } from "@/redux/features/formSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const formSchema = z
   .object({
@@ -42,10 +38,9 @@ const formSchema = z
   });
 
 const MultiStepForm = () => {
+  const [currentStep, setCurrentStep] = useState(0);
   const dispatch = useDispatch();
-  const { currentStep, formData, isSubmitted } = useSelector(
-    (state) => state.form
-  );
+  const { formData } = useSelector((state) => state?.form);
 
   const steps = [
     {
@@ -60,6 +55,10 @@ const MultiStepForm = () => {
       title: "Account setup",
       component: <AccountSetup />,
     },
+    {
+      title: "Summary & Submit",
+      component: <FormSummary />,
+    },
   ];
 
   const method = useForm({
@@ -68,29 +67,23 @@ const MultiStepForm = () => {
     defaultValues: formData,
   });
 
-  console.log(formData);
-
   const { handleSubmit, trigger, getValues, reset, watch } = method;
 
-  useEffect(() => {
-    const savedFormData = localStorage.getItem("formData");
-    if (savedFormData) {
-      const parsedFormData = JSON.parse(savedFormData);
-      reset(parsedFormData);
-      dispatch(setFormData(parsedFormData));
+  if (currentStep === 3) {
+    dispatch(setFormData(getValues()));
+  }
+
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep((prev) => prev - 1);
     }
-  }, [dispatch, reset]);
+  };
 
-  useEffect(() => {
-    const sub = watch((value) => {
-      localStorage.setItem("formData", JSON.stringify(value));
-      dispatch(setFormData(value));
-    });
-
-    return () => {
-      sub.unsubscribe();
-    };
-  }, [watch, dispatch]);
+  const nextStep = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep((prev) => prev + 1);
+    }
+  };
 
   const goToNextStep = async () => {
     const fieldsToValidate =
@@ -103,20 +96,12 @@ const MultiStepForm = () => {
     const isStepValid = await trigger(fieldsToValidate);
 
     if (isStepValid) {
-      dispatch(nextStep());
+      nextStep();
     }
   };
 
-  const goToPrevStep = () => {
-    dispatch(prevStep());
-  };
-
   const onSubmit = (data) => {
-    console.log("Form submitted successfully", data);
     localStorage.setItem("formData", JSON.stringify(data));
-    dispatch(setFormData(data));
-    dispatch(resetForm());
-    reset();
   };
 
   return (
@@ -142,7 +127,7 @@ const MultiStepForm = () => {
                 {currentStep > 0 && (
                   <button
                     type="button"
-                    onClick={goToPrevStep}
+                    onClick={prevStep}
                     className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     Previous

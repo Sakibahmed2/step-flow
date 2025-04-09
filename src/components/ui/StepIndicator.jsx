@@ -29,7 +29,7 @@ const StepIndicator = ({ currentStep, steps }) => {
             <div
               className={cn(
                 "h-1 w-20 bg-gray-300 transition-all",
-                idx < currentStep ? "bg-green-500" : "bg-gray-700"
+                idx < currentStep ? "bg-green-500" : "bg-gray-200"
               )}
             />
           )}
