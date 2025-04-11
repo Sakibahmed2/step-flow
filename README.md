@@ -24,12 +24,6 @@ StepFlow is a multi-step form application built with **Next.js App Router**, **R
 - [Zod](https://zod.dev/)
 - [Tailwind CSS](https://tailwindcss.com/)
 
-## 📸 Demo
-
-<!-- TODO:: -->
-
-> (Optional) Include a short demo video or gif here to showcase the flow.
-
 ## 📦 Getting Started
 
 #### 1. Clone the repository

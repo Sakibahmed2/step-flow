@@ -3,7 +3,6 @@ import { CheckIcon } from "lucide-react";
 import React from "react";
 
 const StepIndicator = ({ currentStep, steps }) => {
-  console.log(currentStep);
   return (
     <div className="flex justify-center items-center">
       {steps.map((step, idx) => (

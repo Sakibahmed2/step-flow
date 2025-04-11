@@ -3,8 +3,6 @@ import { useSelector } from "react-redux";
 const FormSummary = () => {
   const { formData } = useSelector((state) => state.form);
 
-  console.log(formData);
-
   const {
     fullName,
     email,

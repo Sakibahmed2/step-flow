@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
+  currentStep: 0,
   formData: {
     fullName: "",
     email: "",
@@ -12,14 +13,33 @@ const initialState = {
     password: "",
     confirmPassword: "",
   },
+  isSubmitted: false,
 };
 
 export const formSlice = createSlice({
-  name: "formSlice",
+  name: "form",
   initialState,
   reducers: {
+    nextStep: (state) => {
+      if (state.currentStep < 3) {
+        state.currentStep += 1;
+      }
+    },
+    prevStep: (state) => {
+      if (state.currentStep > 0) {
+        state.currentStep -= 1;
+      }
+    },
     setFormData: (state, action) => {
       state.formData = action.payload;
+    },
+    setSubmitted: (state) => {
+      state.isSubmitted = action.payload;
+    },
+    resetForm: (state) => {
+      state.currentStep = 0;
+      state.formData = initialState.formData;
+      state.isSubmitted = true;
     },
   },
 });
