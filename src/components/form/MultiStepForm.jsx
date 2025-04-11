@@ -10,13 +10,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
 import { z } from "zod";
-import StepIndicator from "../ui/StepIndicator";
+import AccountSetup from "../steps/AccountSetup";
+import AddressDetails from "../steps/AddressDetails";
 import FormSummary from "../steps/FormSummary";
 import PersonalInfo from "../steps/PersonalInfo";
-import AddressDetails from "../steps/AddressDetails";
-import AccountSetup from "../steps/AccountSetup";
-import { toast } from "sonner";
+import StepIndicator from "../ui/StepIndicator";
+import { ThemeSwitcher } from "../ui/ToggleTheme";
 
 const formSchema = z
   .object({
@@ -113,7 +114,7 @@ export default function MultiStepForm() {
   const onSubmit = (data) => {
     console.log("Form submitted:", data);
     localStorage.setItem("formData", JSON.stringify(data));
-    if (isSubmitted) {
+    if (localStorage.getItem("formData")) {
       toast.success("Form submitted successfully!");
     }
     dispatch(resetForm());
@@ -122,18 +123,21 @@ export default function MultiStepForm() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Multi-Step Registration
-        </h1>
-        <p className="text-gray-500 mt-2">
-          Complete all steps to create your account
-        </p>
+      <div className="text-center flex flex-col items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Multi-Step Registration
+          </h1>
+          <p className="text-gray-500 dark:to-gray-200 mt-2">
+            Complete all steps to create your account
+          </p>
+        </div>
+        <ThemeSwitcher />
       </div>
 
       <StepIndicator currentStep={currentStep} steps={steps} />
 
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-lg border border-gray-200 dark:border-zinc-500 overflow-hidden">
         <div className="p-6">
           <FormProvider {...methods}>
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -144,7 +148,7 @@ export default function MultiStepForm() {
                   <button
                     type="button"
                     onClick={goToPrevStep}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    className="px-4 py-2 border border-gray-300 dark:border-white dark:text-white rounded-md text-gray-700 hover:bg-gray-50 dark:hover:bg-blue-50/0 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     Previous
                   </button>
@@ -159,7 +163,7 @@ export default function MultiStepForm() {
                       setHasData(false);
                       dispatch(resetForm());
                     }}
-                    className="ml-auto px-4 py-2 border border-red-300 rounded-md text-red-700 hover:bg-red-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    className="ml-auto px-4 py-2 border border-red-300 rounded-md text-red-700 hover:bg-red-50 dark:hover:bg-red-50/0 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                   >
                     Clear Data
                   </button>

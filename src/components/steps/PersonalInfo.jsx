@@ -6,7 +6,7 @@ const PersonalInfo = () => {
     <div>
       <div className="text-center mb-6">
         <h2 className="text-2xl font-semibold ">Personal Information</h2>
-        <p className="text-gray-500">
+        <p className="text-gray-500 dark:text-gray-300">
           Please provide your basic contact details
         </p>
       </div>

@@ -6,7 +6,9 @@ const AccountSetup = () => {
     <div>
       <div className="text-center mb-6">
         <h2 className="text-2xl font-semibold ">Account Setup</h2>
-        <p className="text-gray-500">Please set up your account.</p>
+        <p className="text-gray-500 dark:text-gray-300">
+          Please set up your account.
+        </p>
       </div>
 
       <div className="space-y-6">
