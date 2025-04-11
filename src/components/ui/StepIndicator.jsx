@@ -4,7 +4,7 @@ import React from "react";
 
 const StepIndicator = ({ currentStep, steps }) => {
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex justify-center items-center pb-2">
       {steps.map((step, idx) => (
         <div key={idx} className="flex items-center">
           <div
@@ -27,14 +27,14 @@ const StepIndicator = ({ currentStep, steps }) => {
           {idx < steps?.length - 1 && (
             <div
               className={cn(
-                "h-1 w-20 bg-gray-300 transition-all",
+                "h-1 w-10 md:w-20 bg-gray-300 transition-all",
                 idx < currentStep ? "bg-green-500" : "bg-gray-200"
               )}
             />
           )}
 
           <div
-            className={`absolute -ml-4 mt-20 text-xs font-medium ${
+            className={`absolute  mt-20 text-xs font-medium ${
               idx === currentStep ? "text-blue-600" : "text-gray-600"
             }`}
           >

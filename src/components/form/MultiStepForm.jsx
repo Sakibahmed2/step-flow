@@ -81,17 +81,15 @@ export default function MultiStepForm() {
 
   const goToNextStep = async () => {
     try {
-      // If going to summary step, skip validation
       if (currentStep === steps.length - 2) {
         dispatch(nextStep());
         return;
       }
 
-      // Define fields to validate for each step
       const stepValidations = [
-        ["fullName", "email", "phoneNumber"], // Step 0
-        ["street", "city", "zipCode"], // Step 1
-        ["username", "password", "confirmPassword"], // Step 2
+        ["fullName", "email", "phoneNumber"],
+        ["street", "city", "zipCode"],
+        ["username", "password", "confirmPassword"],
       ];
 
       const fieldsToValidate = stepValidations[currentStep] || [];
@@ -115,6 +113,9 @@ export default function MultiStepForm() {
   const onSubmit = (data) => {
     console.log("Form submitted:", data);
     localStorage.setItem("formData", JSON.stringify(data));
+    if (isSubmitted) {
+      toast.success("Form submitted successfully!");
+    }
     dispatch(resetForm());
     reset();
   };
@@ -187,18 +188,6 @@ export default function MultiStepForm() {
           </FormProvider>
         </div>
       </div>
-
-      {isSubmitted && (
-        <div
-          className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-md relative mt-4"
-          role="alert"
-        >
-          <strong className="font-bold">Success! </strong>
-          <span className="block sm:inline">
-            Your form has been submitted successfully.
-          </span>
-        </div>
-      )}
     </div>
   );
 }
